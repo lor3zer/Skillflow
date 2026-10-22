@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillFlow — CTF Team</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container navbar__inner">
+      <a href="#" class="logo">
+        <span class="logo__bracket">[</span>Skill<span class="logo__accent">Flow</span><span class="logo__bracket">]</span>
+      </a>
+
+      <div class="menu">
+        <button class="menu__toggle" id="menuToggle" aria-expanded="false" aria-controls="menuList" aria-label="Открыть меню">
+          <span class="menu__label">menu</span>
+          <span class="burger"><span></span><span></span><span></span></span>
+        </button>
+
+        <nav class="menu__dropdown" id="menuList">
+          <ul>
+            <li><a href="#about">О команде</a></li>
+            <li><a href="#">Состав</a></li>
+            <li><a href="#">Райтапы</a></li>
+            <li><a href="#">Соревнования</a></li>
+            <li><a href="#">Контакты</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero container">
+      <p class="hero__prompt">root@skillflow:~$ <span class="cursor">_</span></p>
+      <h1 class="hero__title">Мы — <span class="accent">SkillFlow</span></h1>
+      <p class="hero__subtitle">CTF-команда. Ломаем, разбираем, учимся.</p>
+    </section>
+
+    <section class="about container" id="about">
+      <h2 class="section-title"><span class="accent">#</span> о команде</h2>
+      <p>
+        Бла-бла-бла, мы очень крутая команда. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Играем в CTF, решаем таски по вебу, реверсу, крипте и форензике. Бла-бла, флаги, бла-бла, райтапы.
+      </p>
+      <p>
+        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Бла-бла-бла, собираемся по вечерам,
+        пьём кофе и смотрим в дизассемблер. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+      </p>
+      <p>
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Бла-бла, присоединяйся,
+        бла-бла, будет весело. Excepteur sint occaecat cupidatat non proident.
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>&copy; 2026 SkillFlow</span>
+      <span class="footer__muted">CTF team</span>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
