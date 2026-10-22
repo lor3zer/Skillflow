@@ -17,43 +17,36 @@
         <span class="logo__bracket">[</span>Skill<span class="logo__accent">Flow</span><span class="logo__bracket">]</span>
       </a>
 
-      <div class="menu">
-        <button class="menu__toggle" id="menuToggle" aria-expanded="false" aria-controls="menuList" aria-label="Открыть меню">
-          <span class="menu__label">menu</span>
-          <span class="burger"><span></span><span></span><span></span></span>
-        </button>
-
-        <nav class="menu__dropdown" id="menuList">
-          <ul>
-            <li><a href="#about">О команде</a></li>
-            <li><a href="#">Состав</a></li>
-            <li><a href="#">Райтапы</a></li>
-            <li><a href="#">Соревнования</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-      </div>
+      <nav class="nav">
+        <ul class="nav__list">
+          <li><a href="#about" class="nav__link">О команде</a></li>
+          <li><a href="#" class="nav__link">Состав</a></li>
+          <li><a href="#" class="nav__link">Райтапы</a></li>
+          <li><a href="#" class="nav__link">Соревнования</a></li>
+          <li><a href="#" class="nav__link">Контакты</a></li>
+        </ul>
+      </nav>
     </div>
   </header>
 
   <main class="main">
     <section class="hero container">
-      <p class="hero__prompt">root@skillflow:~$ <span class="cursor">_</span></p>
-      <h1 class="hero__title">Мы — <span class="accent">SkillFlow</span></h1>
-      <p class="hero__subtitle">CTF-команда. Ломаем, разбираем, учимся.</p>
+      <p class="hero__prompt anim-in" style="--d: 0">root@skillflow:~$ <span class="typed" id="typed" data-text="./start --team skillflow"></span><span class="cursor">_</span></p>
+      <h1 class="hero__title anim-in" style="--d: 1">Мы — <span class="accent glitch" data-text="SkillFlow">SkillFlow</span></h1>
+      <p class="hero__subtitle anim-in" style="--d: 2">CTF-команда. Ломаем, разбираем, учимся.</p>
     </section>
 
     <section class="about container" id="about">
-      <h2 class="section-title"><span class="accent">#</span> о команде</h2>
-      <p>
+      <h2 class="section-title reveal"><span class="accent">#</span> о команде</h2>
+      <p class="reveal">
         Бла-бла-бла, мы очень крутая команда. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         Играем в CTF, решаем таски по вебу, реверсу, крипте и форензике. Бла-бла, флаги, бла-бла, райтапы.
       </p>
-      <p>
+      <p class="reveal">
         Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Бла-бла-бла, собираемся по вечерам,
         пьём кофе и смотрим в дизассемблер. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
       </p>
-      <p>
+      <p class="reveal">
         Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Бла-бла, присоединяйся,
         бла-бла, будет весело. Excepteur sint occaecat cupidatat non proident.
       </p>
@@ -62,7 +55,7 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <span>&copy; 2026 SkillFlow</span>
+      <span>&copy; 2026 Skill<span class="accent">Flow</span></span>
       <span class="footer__muted">CTF team</span>
     </div>
   </footer>

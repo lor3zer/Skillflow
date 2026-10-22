@@ -91,103 +91,81 @@ a {
   color: var(--graphite-400);
 }
 
-.menu {
-  position: relative;
-}
-
-.menu__toggle {
+.nav__list {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: transparent;
-  border: 1px solid var(--graphite-600);
-  border-radius: var(--radius);
-  color: var(--graphite-200);
-  font: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.menu__toggle:hover,
-.menu__toggle[aria-expanded="true"] {
-  border-color: var(--acid-500);
-  color: var(--acid-500);
-}
-
-.burger {
-  display: flex;
-  flex-direction: column;
   gap: 4px;
-  width: 18px;
-}
-
-.burger span {
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-  transition: transform 0.25s, opacity 0.25s;
-}
-
-.menu__toggle[aria-expanded="true"] .burger span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.menu__toggle[aria-expanded="true"] .burger span:nth-child(2) {
-  opacity: 0;
-}
-
-.menu__toggle[aria-expanded="true"] .burger span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-.menu__dropdown {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  min-width: 220px;
-  background: var(--graphite-800);
-  border: 1px solid var(--graphite-600);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px);
-  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
-}
-
-.menu__dropdown.is-open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.menu__dropdown ul {
   list-style: none;
-  padding: 6px;
 }
 
-.menu__dropdown a {
+.nav__link {
+  position: relative;
   display: block;
-  padding: 10px 12px;
-  border-radius: 4px;
+  padding: 8px 12px;
   color: var(--graphite-200);
-  transition: background 0.15s, color 0.15s;
+  font-size: 0.9rem;
+  transition: color 0.2s;
 }
 
-.menu__dropdown a::before {
-  content: "> ";
-  color: var(--graphite-600);
-  transition: color 0.15s;
+/* линия под ссылкой растёт из центра */
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 2px;
+  background: var(--acid-500);
+  box-shadow: 0 0 8px var(--acid-500);
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
 }
 
-.menu__dropdown a:hover {
-  background: var(--graphite-700);
+.nav__link:hover {
   color: var(--acid-400);
 }
 
-.menu__dropdown a:hover::before {
+.nav__link:hover::after,
+.nav__link.is-active::after {
+  transform: scaleX(1);
+}
+
+.nav__link.is-active {
   color: var(--acid-500);
+}
+
+.logo {
+  transition: text-shadow 0.25s;
+}
+
+.logo:hover {
+  text-shadow: 0 0 12px rgba(168, 255, 0, 0.5);
+}
+
+/* на узких экранах ссылки уходят во вторую строку и скроллятся по горизонтали */
+@media (max-width: 760px) {
+  .navbar__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    height: auto;
+    padding-top: 12px;
+  }
+
+  .nav {
+    width: calc(100% + 32px);
+    margin: 4px -16px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__list {
+    padding: 0 4px 4px;
+    white-space: nowrap;
+  }
 }
 
 /* ---------- main ---------- */
@@ -210,6 +188,10 @@ a {
   animation: blink 1s steps(1) infinite;
 }
 
+.typed {
+  color: var(--graphite-100);
+}
+
 @keyframes blink {
   50% {
     opacity: 0;
@@ -225,6 +207,52 @@ a {
 
 .hero__title .accent {
   text-shadow: 0 0 24px rgba(168, 255, 0, 0.35);
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  50% {
+    text-shadow: 0 0 36px rgba(168, 255, 0, 0.6);
+  }
+}
+
+/* глитч: две смещённые копии текста, которые иногда дёргаются */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: var(--acid-300);
+  animation: glitch-a 4s steps(1) infinite;
+}
+
+.glitch::after {
+  color: var(--acid-900);
+  animation: glitch-b 4s steps(1) infinite;
+}
+
+@keyframes glitch-a {
+  0%, 89%, 100% { opacity: 0; transform: none; clip-path: none; }
+  90% { opacity: 0.8; transform: translate(-3px, -2px); clip-path: inset(10% 0 55% 0); }
+  93% { opacity: 0.8; transform: translate(3px, 1px); clip-path: inset(60% 0 5% 0); }
+  96% { opacity: 0.8; transform: translate(-2px, 2px); clip-path: inset(30% 0 40% 0); }
+}
+
+@keyframes glitch-b {
+  0%, 90%, 100% { opacity: 0; transform: none; clip-path: none; }
+  91% { opacity: 0.9; transform: translate(3px, 2px); clip-path: inset(45% 0 20% 0); }
+  94% { opacity: 0.9; transform: translate(-3px, -1px); clip-path: inset(5% 0 70% 0); }
+  97% { opacity: 0.9; transform: translate(2px, -2px); clip-path: inset(70% 0 10% 0); }
 }
 
 .hero__subtitle {
@@ -247,6 +275,56 @@ a {
   max-width: 760px;
   margin-bottom: 16px;
   color: var(--graphite-200);
+}
+
+/* ---------- анимации появления ---------- */
+
+/* hero: элементы по очереди выезжают снизу, --d — номер в очереди */
+.anim-in {
+  opacity: 0;
+  animation: fade-up 0.7s ease forwards;
+  animation-delay: calc(var(--d, 0) * 0.15s);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* блоки ниже появляются при прокрутке, класс is-visible ставит js */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.about .reveal:nth-child(3) { transition-delay: 0.1s; }
+.about .reveal:nth-child(4) { transition-delay: 0.2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .anim-in,
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------- footer ---------- */

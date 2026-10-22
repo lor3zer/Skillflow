@@ -1,25 +1,42 @@
-const toggle = document.getElementById("menuToggle");
-const dropdown = document.getElementById("menuList");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function setMenu(open) {
-  dropdown.classList.toggle("is-open", open);
-  toggle.setAttribute("aria-expanded", String(open));
+// печатаем команду в строке терминала
+const typed = document.getElementById("typed");
+const text = typed.dataset.text;
+
+if (reduceMotion) {
+  typed.textContent = text;
+} else {
+  let i = 0;
+  setTimeout(function type() {
+    typed.textContent = text.slice(0, ++i);
+    if (i < text.length) setTimeout(type, 60 + Math.random() * 60);
+  }, 600);
 }
 
-toggle.addEventListener("click", (e) => {
-  e.stopPropagation();
-  setMenu(!dropdown.classList.contains("is-open"));
-});
+// показываем блоки при прокрутке
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
 
-// закрываем по клику вне меню, по пункту меню и по Esc
-document.addEventListener("click", (e) => {
-  if (!dropdown.contains(e.target)) setMenu(false);
-});
+document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
-dropdown.addEventListener("click", (e) => {
-  if (e.target.closest("a")) setMenu(false);
-});
+// подсвечиваем ссылку в навбаре, когда её секция на экране
+const links = document.querySelectorAll('.nav__link[href^="#"]:not([href="#"])');
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") setMenu(false);
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    const link = document.querySelector(`.nav__link[href="#${entry.target.id}"]`);
+    link.classList.toggle("is-active", entry.isIntersecting);
+  });
+}, { rootMargin: "-40% 0px -50% 0px" });
+
+links.forEach((link) => {
+  const section = document.querySelector(link.getAttribute("href"));
+  if (section) navObserver.observe(section);
 });
