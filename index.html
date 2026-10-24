@@ -14,45 +14,124 @@
 
   <header class="navbar">
     <div class="container navbar__inner">
-      <a href="#" class="logo">
+      <a href="#about" class="logo">
         <span class="logo__bracket logo__bracket--l">[</span><span class="logo__text">Cyber<span class="logo__accent">Flow</span></span><span class="logo__bracket logo__bracket--r">]</span>
       </a>
 
       <nav class="nav">
         <ul class="nav__list">
           <li style="--i: 0"><a href="#about" class="nav__link">О команде</a></li>
-          <li style="--i: 1"><a href="#" class="nav__link">Состав</a></li>
-          <li style="--i: 2"><a href="#" class="nav__link">Райтапы</a></li>
-          <li style="--i: 3"><a href="#" class="nav__link">Соревнования</a></li>
-          <li style="--i: 4"><a href="#" class="nav__link">Контакты</a></li>
+          <li style="--i: 1"><a href="#team" class="nav__link">Состав</a></li>
+          <li style="--i: 2"><a href="#writeups" class="nav__link">Райтапы</a></li>
+          <li style="--i: 3"><a href="#ctfs" class="nav__link">Соревнования</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
   <main class="main">
-    <section class="hero container">
-      <img class="hero__art" src="img/mpei.svg" alt="" aria-hidden="true">
-      <p class="hero__prompt anim-in" style="--d: 0">root@cyberflow:~$ <span class="typed" id="typed" data-text="./start --team cyberflow"></span><span class="cursor">_</span></p>
-      <h1 class="hero__title anim-in" style="--d: 1">Мы — <span class="accent glitch" data-text="CyberFlow">CyberFlow</span></h1>
-      <p class="hero__subtitle anim-in" style="--d: 2">CTF-команда. Ломаем, разбираем, учимся.</p>
-    </section>
+    <div class="view" data-view="about">
+      <section class="hero container section">
+        <p class="hero__prompt anim-in" style="--d: 0">root@cyberflow:~$ <span class="typed" id="typed" data-text="./start --team cyberflow"></span><span class="cursor">_</span></p>
+        <h1 class="hero__title anim-in" style="--d: 1">Мы — <span class="accent glitch" data-text="CyberFlow">CyberFlow</span></h1>
+        <p class="hero__subtitle anim-in" style="--d: 2">CTF-команда. Ломаем, разбираем, учимся.</p>
+      </section>
 
-    <section class="about container" id="about">
-      <h2 class="section-title reveal"><span class="accent">#</span> о команде</h2>
-      <p class="reveal">
-        Бла-бла-бла, мы очень крутая команда. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        Играем в CTF, решаем таски по вебу, реверсу, крипте и форензике. Бла-бла, флаги, бла-бла, райтапы.
-      </p>
-      <p class="reveal">
-        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Бла-бла-бла, собираемся по вечерам,
-        пьём кофе и смотрим в дизассемблер. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
-      </p>
-      <p class="reveal">
-        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Бла-бла, присоединяйся,
-        бла-бла, будет весело. Excepteur sint occaecat cupidatat non proident.
-      </p>
-    </section>
+      <section class="about container section">
+        <h2 class="section-title reveal"><span class="accent">#</span> о команде</h2>
+        <p class="reveal">
+          Бла-бла-бла, мы очень крутая команда. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Играем в CTF, решаем таски по вебу, реверсу, крипте и форензике. Бла-бла, флаги, бла-бла, райтапы.
+        </p>
+        <p class="reveal">
+          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Бла-бла-бла, собираемся по вечерам,
+          пьём кофе и смотрим в дизассемблер. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+        </p>
+        <p class="reveal">
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. Бла-бла, присоединяйся,
+          бла-бла, будет весело. Excepteur sint occaecat cupidatat non proident.
+        </p>
+      </section>
+    </div>
+
+    <div class="view" data-view="team" hidden>
+      <section class="page container section">
+        <p class="page__prompt">root@cyberflow:~$ ls ./team</p>
+        <h2 class="section-title"><span class="accent">#</span> состав</h2>
+        <p class="page__lead">Бла-бла, вот кто стоит за флагами. Пока это примеры карточек — потом заменим на настоящих участников.</p>
+        <div class="cards">
+          <article class="card">
+            <div class="card__avatar">N0</div>
+            <h3 class="card__nick">n0name</h3>
+            <p class="card__role">капитан · pwn</p>
+            <p class="card__bio">Бла-бла, ломает бинари быстрее, чем компилятор их собирает. Lorem ipsum dolor sit amet.</p>
+            <ul class="card__tags"><li>pwn</li><li>reverse</li></ul>
+          </article>
+          <article class="card">
+            <div class="card__avatar">R3</div>
+            <h3 class="card__nick">r3verse</h3>
+            <p class="card__role">reverse</p>
+            <p class="card__bio">Читает ассемблер как художественную литературу. Бла-бла, IDA, Ghidra, кофе.</p>
+            <ul class="card__tags"><li>reverse</li><li>malware</li></ul>
+          </article>
+          <article class="card">
+            <div class="card__avatar">CR</div>
+            <h3 class="card__nick">cr4b</h3>
+            <p class="card__role">crypto</p>
+            <p class="card__bio">Бла-бла, видит XOR там, где его нет. Consectetur adipiscing elit, RSA и эллиптические кривые.</p>
+            <ul class="card__tags"><li>crypto</li><li>math</li></ul>
+          </article>
+          <article class="card">
+            <div class="card__avatar">0X</div>
+            <h3 class="card__nick">0xflow</h3>
+            <p class="card__role">web</p>
+            <p class="card__bio">Находит SQL-инъекцию в форме обратной связи. Бла-бла, Burp открыт всегда.</p>
+            <ul class="card__tags"><li>web</li><li>sqli</li></ul>
+          </article>
+          <article class="card">
+            <div class="card__avatar">BB</div>
+            <h3 class="card__nick">byte_bandit</h3>
+            <p class="card__role">forensics</p>
+            <p class="card__bio">Достаёт флаги из дампов, пакетов и картинок с котиками. Sed do eiusmod tempor.</p>
+            <ul class="card__tags"><li>forensics</li><li>stego</li></ul>
+          </article>
+          <article class="card">
+            <div class="card__avatar">SH</div>
+            <h3 class="card__nick">sh3ll</h3>
+            <p class="card__role">osint · misc</p>
+            <p class="card__bio">Бла-бла, найдёт кого угодно по одной фотографии. Ut enim ad minim veniam.</p>
+            <ul class="card__tags"><li>osint</li><li>misc</li></ul>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="view" data-view="writeups" hidden>
+      <section class="page container section">
+        <p class="page__prompt">root@cyberflow:~$ ls ./writeups</p>
+        <h2 class="section-title"><span class="accent">#</span> райтапы</h2>
+        <pre class="terminal">ls: cannot access './writeups': No such file or directory
+<span class="accent">[*]</span> бла-бла, райтапы скоро будут здесь</pre>
+      </section>
+    </div>
+
+    <div class="view" data-view="ctfs" hidden>
+      <section class="page container section">
+        <p class="page__prompt">root@cyberflow:~$ cat ./ctfs.log</p>
+        <h2 class="section-title"><span class="accent">#</span> соревнования</h2>
+        <pre class="terminal">cat: ./ctfs.log: Permission denied
+<span class="accent">[*]</span> бла-бла, список соревнований скоро появится</pre>
+      </section>
+    </div>
+
+    <div class="view" data-view="secret" hidden>
+      <section class="page container section">
+        <p class="page__prompt">root@cyberflow:~$ cat ./secret.jpg</p>
+        <h2 class="section-title"><span class="accent">#</span> secret</h2>
+        <p class="page__lead">Ты нашёл флаг. Никому не говори.</p>
+        <img class="secret__img" src="img/secret.jpg" alt="Патрик и CyberFlow">
+      </section>
+    </div>
   </main>
 
   <footer class="footer">

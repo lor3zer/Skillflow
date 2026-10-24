@@ -14,6 +14,11 @@ if (reduceMotion) {
   }, 600);
 }
 
+// вступительная анимация hero нужна только при загрузке, иначе она повторяется при каждом возврате на вкладку
+setTimeout(() => {
+  document.querySelectorAll(".anim-in").forEach((el) => el.classList.remove("anim-in"));
+}, 2000);
+
 // показываем блоки при прокрутке
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -26,22 +31,128 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
-// подсвечиваем ссылку в навбаре, когда её секция на экране
-const links = document.querySelectorAll('.nav__link[href^="#"]:not([href="#"])');
+// ---------- вкладки ----------
+// содержимое старой вкладки втягивается в её пункт навбара, новое вылетает из нажатого
 
-const navObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    const link = document.querySelector(`.nav__link[href="#${entry.target.id}"]`);
-    link.classList.toggle("is-active", entry.isIntersecting);
+const views = new Map([...document.querySelectorAll(".view")].map((v) => [v.dataset.view, v]));
+const DEFAULT_VIEW = "about";
+
+let currentView = views.get(DEFAULT_VIEW);
+let switching = false;
+let pendingSwitch = null;
+let clickOrigin = null;
+
+function centerOf(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+// у скрытой вкладки secret нет пункта в навбаре — она вылетает из лого
+function navOrigin(name) {
+  const link = document.querySelector(`.nav__link[href="#${name}"]`) || document.querySelector(".logo");
+  return centerOf(link);
+}
+
+function setActiveLink(name) {
+  document.querySelectorAll(".nav__link").forEach((link) => {
+    link.classList.toggle("is-active", link.getAttribute("href") === `#${name}`);
   });
-}, { rootMargin: "-40% 0px -50% 0px" });
+}
 
-links.forEach((link) => {
-  const section = document.querySelector(link.getAttribute("href"));
-  if (section) navObserver.observe(section);
+function flyItems(view) {
+  return [...view.querySelectorAll(".section > :not(.cards), .cards > *")];
+}
+
+function toOrigin(el, origin) {
+  const c = centerOf(el);
+  return `translate(${origin.x - c.x}px, ${origin.y - c.y}px) scale(0.05)`;
+}
+
+function isOnScreen(el) {
+  const r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < window.innerHeight;
+}
+
+async function switchView(name, origin) {
+  const next = views.get(name) || views.get(DEFAULT_VIEW);
+  const prev = currentView;
+  if (next === prev) return;
+
+  currentView = next;
+  setActiveLink(next.dataset.view);
+
+  if (!reduceMotion) {
+    const outOrigin = navOrigin(prev.dataset.view);
+    const out = flyItems(prev).filter(isOnScreen).map((el, i) =>
+      el.animate(
+        [{ transform: "none", opacity: 1 }, { transform: toOrigin(el, outOrigin), opacity: 0 }],
+        { duration: 320, delay: i * 25, easing: "cubic-bezier(0.5, 0, 0.75, 0)", fill: "forwards" },
+      ),
+    );
+    await Promise.all(out.map((a) => a.finished));
+    out.forEach((a) => a.cancel());
+  }
+
+  prev.hidden = true;
+  next.hidden = false;
+  window.scrollTo(0, 0);
+
+  if (!reduceMotion) {
+    const anims = flyItems(next).map((el, i) =>
+      el.animate(
+        [
+          { transform: toOrigin(el, origin), opacity: 0, filter: "blur(4px)" },
+          { transform: "none", opacity: 1, filter: "none" },
+        ],
+        { duration: 650, delay: Math.min(i * 50, 500), easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "backwards" },
+      ),
+    );
+    await Promise.all(anims.map((a) => a.finished));
+  }
+}
+
+// пока идёт переход, запоминаем только последний запрошенный
+async function goTo(name, origin) {
+  if (switching) {
+    pendingSwitch = { name, origin };
+    return;
+  }
+  switching = true;
+  await switchView(name, origin);
+  switching = false;
+
+  if (pendingSwitch) {
+    const { name: nextName, origin: nextOrigin } = pendingSwitch;
+    pendingSwitch = null;
+    goTo(nextName, nextOrigin);
+  }
+}
+
+function viewFromHash() {
+  return location.hash.slice(1) || DEFAULT_VIEW;
+}
+
+document.addEventListener("click", (e) => {
+  const link = e.target.closest('a[href^="#"]');
+  if (link) clickOrigin = centerOf(link);
+}, true);
+
+window.addEventListener("hashchange", () => {
+  const name = viewFromHash();
+  goTo(name, clickOrigin || navOrigin(name));
+  clickOrigin = null;
 });
 
-// фон: поток кода в три слоя глубины — дальний мелкий и тусклый, ближний крупный и быстрый
+// при открытии по прямой ссылке сразу показываем нужную вкладку, без перехода
+if (views.has(viewFromHash()) && viewFromHash() !== DEFAULT_VIEW) {
+  currentView.hidden = true;
+  currentView = views.get(viewFromHash());
+  currentView.hidden = false;
+}
+setActiveLink(currentView.dataset.view);
+
+// ---------- фон ----------
+// поток символов в три слоя глубины — дальний мелкий и тусклый, ближний крупный и быстрый
 const canvas = document.getElementById("bgRain");
 const ctx = canvas.getContext("2d");
 const FRAME_MS = 60;
@@ -68,17 +179,6 @@ const COLORS = [
   { value: "#6b737c", weight: 2 },
 ];
 
-const WORDS = [
-  "flag{", "}", "0xdeadbeef", "0x41414141", "mov eax", "jmp esp", "nop", "\\x90\\x90",
-  "ret", "rop", "SELECT", "<script>", "../../", "%00", "sudo", "nc -lvp",
-  "chmod +x", "base64", "xor", "aes", "gdb", "ctf", "pwn", "root",
-];
-
-const MESSAGES = [
-  "[+] flag captured", "[*] scanning 10.0.0.0/24", "[+] access granted", "segfault at 0x0",
-  "[!] buffer overflow", "[+] shell opened", "[*] cracking hash...", "pwned",
-];
-
 const rand = (min, max) => min + Math.random() * (max - min);
 
 function pick(list) {
@@ -97,9 +197,9 @@ function makeDrop(scattered) {
     speed: rand(...layer.speed),
     chars: pick(CHARSETS).chars,
     color: pick(COLORS).value,
-    word: "",
+    queue: [],
     row: -1,
-    prev: "",
+    prev: null,
   };
 }
 
@@ -109,20 +209,18 @@ function resizeRain() {
   canvas.height = window.innerHeight * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+  // столбцы пересоздаются — если пасхалка была в полёте, считаем, что она улетела
+  if (egg.drop) egg.onGone();
   drops = Array.from({ length: Math.ceil(window.innerWidth / 14) }, () => makeDrop(true));
 
   ctx.fillStyle = BG;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
+// символ из очереди столбца (так приходит пасхалка) или случайный из его набора
 function nextChar(drop) {
-  if (drop.word) {
-    const ch = drop.word[0];
-    drop.word = drop.word.slice(1);
-    return ch;
-  }
-  if (Math.random() < 0.006) drop.word = WORDS[Math.floor(Math.random() * WORDS.length)];
-  return drop.chars[Math.floor(Math.random() * drop.chars.length)];
+  if (drop.queue.length) return drop.queue.shift();
+  return { ch: drop.chars[Math.floor(Math.random() * drop.chars.length)], egg: false };
 }
 
 function drawDrop(drop) {
@@ -140,25 +238,18 @@ function drawDrop(drop) {
       ctx.fillStyle = BG;
       ctx.fillRect(drop.x, prevY - size, size, size * 1.2);
       ctx.fillStyle = drop.color;
-      ctx.fillText(drop.prev, drop.x, prevY);
+      ctx.fillText(drop.prev.ch, drop.x, prevY);
     }
 
     drop.prev = nextChar(drop);
     ctx.fillStyle = HEAD_COLOR;
-    ctx.fillText(drop.prev, drop.x, row * size);
+    ctx.fillText(drop.prev.ch, drop.x, row * size);
+    if (drop.prev.egg) egg.onDraw(drop.x, row * size, size);
     drop.row = row;
   }
 
   drop.y += drop.speed;
   return row * size < window.innerHeight + size;
-}
-
-function drawMessage() {
-  const text = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
-  ctx.globalAlpha = 0.9;
-  ctx.font = '13px "JetBrains Mono", monospace';
-  ctx.fillStyle = "#c2ff33";
-  ctx.fillText(text, rand(0, window.innerWidth - 200), rand(40, window.innerHeight - 20));
 }
 
 function drawRain() {
@@ -167,13 +258,93 @@ function drawRain() {
   ctx.fillStyle = "rgba(24, 27, 30, 0.06)";
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
+  if (egg.pending) egg.launch();
+
   // ушедший за экран столбец через случайную паузу возвращается новым
   drops.forEach((drop, i) => {
-    if (!drawDrop(drop) && Math.random() < 0.05) drops[i] = makeDrop(false);
+    if (!drawDrop(drop)) {
+      if (drop === egg.drop) egg.onGone();
+      if (Math.random() < 0.05) drops[i] = makeDrop(false);
+    }
   });
-
-  if (Math.random() < 0.006) drawMessage();
 }
+
+// ---------- пасхалка ----------
+// через минуту в одном из столбцов среди обычных символов проезжает CTF{},
+// клик по нему открывает вкладку secret; если не поймали — пролетит ещё пару раз
+const egg = {
+  WORD: "CTF{}",
+  FIRST_DELAY: 60000,
+  REPEAT_DELAY: 40000,
+  MAX_FLIGHTS: 3,
+  // после того как символ нарисован, хвост ещё виден — столько он остаётся кликабельным
+  CLICKABLE_MS: 4000,
+
+  flights: 0,
+  found: false,
+  pending: false,
+  drop: null,
+  box: null,
+  lastDrawn: 0,
+
+  schedule(delay) {
+    setTimeout(() => {
+      this.pending = true;
+    }, delay);
+  },
+
+  launch() {
+    this.pending = false;
+    this.flights++;
+    this.box = null;
+
+    const drop = makeDrop(false);
+    drop.layer = LAYERS[1];
+    drop.speed = 0.5;
+    drop.color = COLORS[0].value;
+    drop.chars = CHARSETS[0].chars;
+    drop.x = Math.floor(rand(0.05, 0.9) * window.innerWidth);
+
+    // столбец стартует сверху как обычный, а слово появляется в средней части экрана, не под навбаром
+    drop.y = 0;
+    const wordRow = Math.floor(rand(0.3, 0.7) * window.innerHeight / drop.layer.size);
+    const lead = Array.from({ length: wordRow }, () => nextChar(drop));
+    drop.queue = [...lead, ...[...this.WORD].map((ch) => ({ ch, egg: true }))];
+
+    drops[Math.floor(Math.random() * drops.length)] = drop;
+    this.drop = drop;
+  },
+
+  onDraw(x, y, size) {
+    const b = this.box;
+    this.box = b
+      ? { ...b, bottom: y + size * 0.3 }
+      : { left: x - size * 0.4, right: x + size * 1.2, top: y - size, bottom: y + size * 0.3 };
+    this.lastDrawn = performance.now();
+  },
+
+  onGone() {
+    this.drop = null;
+    if (!this.found && this.flights < this.MAX_FLIGHTS) this.schedule(this.REPEAT_DELAY);
+  },
+
+  hit(x, y) {
+    const b = this.box;
+    return Boolean(b) && !this.found && performance.now() - this.lastDrawn < this.CLICKABLE_MS
+      && x >= b.left && x <= b.right && y >= b.top && y <= b.bottom;
+  },
+};
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest("a, button") || !egg.hit(e.clientX, e.clientY)) return;
+  egg.found = true;
+  clickOrigin = { x: e.clientX, y: e.clientY };
+  location.hash = "#secret";
+});
+
+document.addEventListener("mousemove", (e) => {
+  document.body.style.cursor = egg.hit(e.clientX, e.clientY) ? "pointer" : "";
+});
 
 resizeRain();
 window.addEventListener("resize", resizeRain);
@@ -181,6 +352,8 @@ window.addEventListener("resize", resizeRain);
 if (reduceMotion) {
   for (let i = 0; i < 120; i++) drawRain();
 } else {
+  egg.schedule(egg.FIRST_DELAY);
+
   let last = 0;
   requestAnimationFrame(function loop(t) {
     if (t - last > FRAME_MS) {

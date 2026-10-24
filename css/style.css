@@ -259,41 +259,8 @@ a {
 }
 
 .hero {
-  position: relative;
   padding-top: 120px;
   padding-bottom: 100px;
-}
-
-.hero > :not(.hero__art) {
-  position: relative;
-  z-index: 1;
-}
-
-/* здание МЭИ справа: контур в стиле чертежа, низ растворяется в фоне */
-.hero__art {
-  position: absolute;
-  right: -24px;
-  bottom: 40px;
-  width: min(500px, 42%);
-  opacity: 0.55;
-  pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(168, 255, 0, 0.35));
-  mask-image: linear-gradient(to bottom, #000 75%, transparent);
-}
-
-@media (max-width: 1000px) {
-  .hero__art {
-    opacity: 0.25;
-  }
-}
-
-@media (max-width: 760px) {
-  .hero__art {
-    right: 0;
-    bottom: 20px;
-    width: 100%;
-    opacity: 0.18;
-  }
 }
 
 .hero__prompt {
@@ -392,6 +359,123 @@ a {
   max-width: 760px;
   margin-bottom: 16px;
   color: var(--graphite-200);
+}
+
+/* ---------- вкладки ---------- */
+
+.view[hidden] {
+  display: none;
+}
+
+.page {
+  padding-top: 80px;
+  padding-bottom: 100px;
+}
+
+.page__prompt {
+  color: var(--acid-600);
+  margin-bottom: 12px;
+}
+
+.page__lead {
+  max-width: 640px;
+  margin-bottom: 40px;
+  color: var(--graphite-200);
+}
+
+.terminal {
+  max-width: 640px;
+  padding: 20px;
+  background: var(--graphite-950);
+  border: 1px solid var(--graphite-700);
+  border-radius: var(--radius);
+  color: var(--graphite-200);
+  font: inherit;
+  white-space: pre-wrap;
+}
+
+/* карточки участников */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  padding: 24px;
+  background: rgba(33, 37, 41, 0.85);
+  border: 1px solid var(--graphite-700);
+  border-radius: var(--radius);
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--acid-600);
+  box-shadow: 0 8px 28px rgba(168, 255, 0, 0.12);
+}
+
+.card__avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  background: var(--graphite-900);
+  border: 1px solid var(--acid-600);
+  border-radius: var(--radius);
+  color: var(--acid-500);
+  font-weight: 800;
+  font-size: 1.1rem;
+  transition: box-shadow 0.25s;
+}
+
+.card:hover .card__avatar {
+  box-shadow: 0 0 14px rgba(168, 255, 0, 0.45);
+}
+
+.card__nick {
+  font-size: 1.15rem;
+}
+
+.card__nick::before {
+  content: "@";
+  color: var(--graphite-400);
+}
+
+.card__role {
+  margin-bottom: 12px;
+  color: var(--acid-600);
+  font-size: 0.85rem;
+}
+
+.card__bio {
+  margin-bottom: 16px;
+  color: var(--graphite-200);
+  font-size: 0.9rem;
+}
+
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+
+.card__tags li {
+  padding: 2px 8px;
+  border: 1px solid var(--graphite-600);
+  border-radius: 4px;
+  color: var(--graphite-400);
+  font-size: 0.75rem;
+}
+
+.secret__img {
+  display: block;
+  width: min(420px, 100%);
+  border: 1px solid var(--acid-600);
+  border-radius: var(--radius);
+  box-shadow: 0 0 30px rgba(168, 255, 0, 0.15);
 }
 
 /* ---------- анимации появления ---------- */
