@@ -41,69 +41,145 @@ links.forEach((link) => {
   if (section) navObserver.observe(section);
 });
 
-// фон: падающие hex-символы, изредка проскакивают куски флагов
+// фон: поток кода в три слоя глубины — дальний мелкий и тусклый, ближний крупный и быстрый
 const canvas = document.getElementById("bgRain");
 const ctx = canvas.getContext("2d");
-const CHARS = "0123456789ABCDEF";
-const WORDS = ["flag{", "0x", "}", "ctf", "nop", "ret"];
-const FONT_SIZE = 16;
 const FRAME_MS = 60;
+const BG = "#181b1e";
+const HEAD_COLOR = "#e4ff99";
 
-let columns = [];
+const LAYERS = [
+  { size: 11, alpha: 0.35, speed: [0.3, 0.6], weight: 5 },
+  { size: 14, alpha: 0.6, speed: [0.5, 0.9], weight: 3 },
+  { size: 19, alpha: 0.9, speed: [0.8, 1.3], weight: 1 },
+];
+
+const CHARSETS = [
+  { chars: "0123456789ABCDEF", weight: 5 },
+  { chars: "01", weight: 3 },
+  { chars: "{}[]<>/\\$#%&*=+;:|", weight: 2 },
+  { chars: "abcdefghijklmnopqrstuvwxyz0123456789", weight: 2 },
+];
+
+const COLORS = [
+  { value: "#86cc00", weight: 6 },
+  { value: "#a8ff00", weight: 3 },
+  { value: "#5c8a00", weight: 3 },
+  { value: "#6b737c", weight: 2 },
+];
+
+const WORDS = [
+  "flag{", "}", "0xdeadbeef", "0x41414141", "mov eax", "jmp esp", "nop", "\\x90\\x90",
+  "ret", "rop", "SELECT", "<script>", "../../", "%00", "sudo", "nc -lvp",
+  "chmod +x", "base64", "xor", "aes", "gdb", "ctf", "pwn", "root",
+];
+
+const MESSAGES = [
+  "[+] flag captured", "[*] scanning 10.0.0.0/24", "[+] access granted", "segfault at 0x0",
+  "[!] buffer overflow", "[+] shell opened", "[*] cracking hash...", "pwned",
+];
+
+const rand = (min, max) => min + Math.random() * (max - min);
+
+function pick(list) {
+  let r = Math.random() * list.reduce((sum, item) => sum + item.weight, 0);
+  return list.find((item) => (r -= item.weight) < 0) || list[0];
+}
+
+let drops = [];
+
+function makeDrop(scattered) {
+  const layer = pick(LAYERS);
+  return {
+    layer,
+    x: Math.floor(Math.random() * window.innerWidth),
+    y: scattered ? rand(-window.innerHeight / layer.size, 0) : rand(-20, 0),
+    speed: rand(...layer.speed),
+    chars: pick(CHARSETS).chars,
+    color: pick(COLORS).value,
+    word: "",
+    row: -1,
+    prev: "",
+  };
+}
 
 function resizeRain() {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.font = `${FONT_SIZE}px "JetBrains Mono", monospace`;
 
-  const count = Math.ceil(window.innerWidth / FONT_SIZE);
-  columns = Array.from({ length: count }, () => ({
-    y: Math.random() * -window.innerHeight,
-    speed: 0.5 + Math.random() * 0.8,
-    word: "",
-    row: -1,
-  }));
+  drops = Array.from({ length: Math.ceil(window.innerWidth / 14) }, () => makeDrop(true));
 
-  ctx.fillStyle = "#181b1e";
+  ctx.fillStyle = BG;
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 }
 
-function nextChar(col) {
-  if (col.word) {
-    const ch = col.word[0];
-    col.word = col.word.slice(1);
+function nextChar(drop) {
+  if (drop.word) {
+    const ch = drop.word[0];
+    drop.word = drop.word.slice(1);
     return ch;
   }
-  if (Math.random() < 0.004) col.word = WORDS[Math.floor(Math.random() * WORDS.length)];
-  return CHARS[Math.floor(Math.random() * CHARS.length)];
+  if (Math.random() < 0.006) drop.word = WORDS[Math.floor(Math.random() * WORDS.length)];
+  return drop.chars[Math.floor(Math.random() * drop.chars.length)];
+}
+
+function drawDrop(drop) {
+  const { size, alpha } = drop.layer;
+  const row = Math.floor(drop.y);
+
+  // медленный столбец стоит в одной клетке несколько кадров — рисуем только при переходе
+  if (row >= 0 && row !== drop.row) {
+    ctx.font = `${size}px "JetBrains Mono", monospace`;
+    ctx.globalAlpha = alpha;
+
+    // прошлую «голову» перекрашиваем в цвет столбца
+    if (drop.prev) {
+      const prevY = drop.row * size;
+      ctx.fillStyle = BG;
+      ctx.fillRect(drop.x, prevY - size, size, size * 1.2);
+      ctx.fillStyle = drop.color;
+      ctx.fillText(drop.prev, drop.x, prevY);
+    }
+
+    drop.prev = nextChar(drop);
+    ctx.fillStyle = HEAD_COLOR;
+    ctx.fillText(drop.prev, drop.x, row * size);
+    drop.row = row;
+  }
+
+  drop.y += drop.speed;
+  return row * size < window.innerHeight + size;
+}
+
+function drawMessage() {
+  const text = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+  ctx.globalAlpha = 0.9;
+  ctx.font = '13px "JetBrains Mono", monospace';
+  ctx.fillStyle = "#c2ff33";
+  ctx.fillText(text, rand(0, window.innerWidth - 200), rand(40, window.innerHeight - 20));
 }
 
 function drawRain() {
   // полупрозрачная заливка оставляет за символами затухающий хвост
+  ctx.globalAlpha = 1;
   ctx.fillStyle = "rgba(24, 27, 30, 0.06)";
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-  columns.forEach((col, i) => {
-    const row = Math.floor(col.y);
-    const y = row * FONT_SIZE;
-    // медленный столбец стоит в одной клетке несколько кадров — рисуем символ только при переходе
-    if (y >= 0 && row !== col.row) {
-      ctx.fillStyle = Math.random() < 0.03 ? "#d4ff66" : "#86cc00";
-      ctx.fillText(nextChar(col), i * FONT_SIZE, y);
-    }
-    col.row = row;
-    col.y += col.speed;
-    if (y > window.innerHeight && Math.random() > 0.97) col.y = col.row = 0;
+  // ушедший за экран столбец через случайную паузу возвращается новым
+  drops.forEach((drop, i) => {
+    if (!drawDrop(drop) && Math.random() < 0.05) drops[i] = makeDrop(false);
   });
+
+  if (Math.random() < 0.006) drawMessage();
 }
 
 resizeRain();
 window.addEventListener("resize", resizeRain);
 
 if (reduceMotion) {
-  for (let i = 0; i < 80; i++) drawRain();
+  for (let i = 0; i < 120; i++) drawRain();
 } else {
   let last = 0;
   requestAnimationFrame(function loop(t) {
